@@ -1,0 +1,8 @@
+variable "rgs" {
+
+}
+
+variable "stgs" {
+
+
+}
