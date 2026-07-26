@@ -2,10 +2,9 @@ rgs = {
   rg1 = {
     name     = "shashank-rg-3"
     location = "centralindia"
-  }
-
+ 
 }
-
+}
 stgs = {
   stgs1 = {
     name                     = "stgs266243"
@@ -17,7 +16,7 @@ stgs = {
 
 }
 Enviroment   = "dev"
-Project      = "ims"
+Project      = "IMS"
 Owner        = "dev-team"
 BusinessUnit = "BCSS"
 CostCenter   = "India-11"
