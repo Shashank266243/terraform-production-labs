@@ -1,0 +1,200 @@
+name: Terraform CI-CD
+
+on:
+  # Run when code is pushed to feature branches or main
+  push:
+    branches:
+      - "feature/**"
+      - main
+
+  # Run validation when Pull Request is created/updated
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+
+  # Azure OIDC authentication
+  ARM_USE_OIDC: true
+  ARM_CLIENT_ID: 0f736765-2a41-4713-a5cc-f671f029ef85
+  ARM_TENANT_ID: 1abac9aa-2d3d-43ce-a02b-a0088d317630
+  ARM_SUBSCRIPTION_ID: c0fefeb2-eca9-4c42-a650-6e08b544f0a8
+
+
+jobs:
+
+  # =========================================================
+  # TERRAFORM PLAN
+  # =========================================================
+
+  terraform-plan:
+    name: Terraform Format Validate Plan
+    runs-on: ubuntu-latest
+
+    # Terraform code location
+    defaults:
+      run:
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
+
+    steps:
+
+      # -----------------------------------------------------
+      # Checkout repository
+      # -----------------------------------------------------
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      # -----------------------------------------------------
+      # Setup Terraform
+      # -----------------------------------------------------
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+
+      # -----------------------------------------------------
+      # Azure Login using OIDC
+      # -----------------------------------------------------
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: 0f736765-2a41-4713-a5cc-f671f029ef85
+          tenant-id: 1abac9aa-2d3d-43ce-a02b-a0088d317630
+          subscription-id: c0fefeb2-eca9-4c42-a650-6e08b544f0a8
+
+
+      # -----------------------------------------------------
+      # Terraform Format
+      # -----------------------------------------------------
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+
+      # -----------------------------------------------------
+      # Terraform Init
+      # -----------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+      # -----------------------------------------------------
+      # Terraform Validate
+      # -----------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # -----------------------------------------------------
+      # Terraform Plan
+      # -----------------------------------------------------
+
+      - name: Terraform Plan
+        run: terraform plan
+
+
+  # =========================================================
+  # TERRAFORM APPLY
+  # =========================================================
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    # Apply job waits for plan job
+    needs: terraform-plan
+
+    # Apply ONLY on main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    # Production approval
+    environment:
+      name: production
+
+    # Terraform code location
+    defaults:
+      run:
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
+
+    steps:
+
+      # -----------------------------------------------------
+      # Checkout repository
+      # -----------------------------------------------------
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      # -----------------------------------------------------
+      # Setup Terraform
+      # -----------------------------------------------------
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+
+      # -----------------------------------------------------
+      # Azure Login using OIDC
+      # -----------------------------------------------------
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: 0f736765-2a41-4713-a5cc-f671f029ef85
+          tenant-id: 1abac9aa-2d3d-43ce-a02b-a0088d317630
+          subscription-id: c0fefeb2-eca9-4c42-a650-6e08b544f0a8
+
+
+      # -----------------------------------------------------
+      # Terraform Format
+      # -----------------------------------------------------
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+
+      # -----------------------------------------------------
+      # Terraform Init
+      # -----------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+      # -----------------------------------------------------
+      # Terraform Validate
+      # -----------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # -----------------------------------------------------
+      # Terraform Plan
+      # -----------------------------------------------------
+
+      - name: Terraform Plan
+        run: terraform plan
+
+
+      # -----------------------------------------------------
+      # Terraform Apply
+      # -----------------------------------------------------
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
