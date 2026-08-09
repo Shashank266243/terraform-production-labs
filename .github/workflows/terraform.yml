@@ -1,20 +1,34 @@
 name: Terraform CI-CD
 
 on:
+  # ---------------------------------------------------------
   # Run when code is pushed to feature branches or main
+  # ---------------------------------------------------------
   push:
     branches:
       - "feature/**"
       - main
 
-  # Run validation when Pull Request is created/updated
+  # ---------------------------------------------------------
+  # Run when PR is created/updated against main
+  # ---------------------------------------------------------
   pull_request:
     branches:
       - main
 
+
+# -----------------------------------------------------------
+# GitHub Actions permissions
+# -----------------------------------------------------------
+
 permissions:
   id-token: write
   contents: read
+
+
+# -----------------------------------------------------------
+# Global environment variables
+# -----------------------------------------------------------
 
 env:
   TF_VERSION: "1.9.8"
@@ -33,13 +47,10 @@ jobs:
   # =========================================================
 
   terraform-plan:
-    name: Terraform Format Validate Plan
-    runs-on: ubuntu-latest
 
-    # Terraform code location
-    defaults:
-      run:
-        working-directory: Week-2/Terraform_Recap/day_03/Modular
+    name: Terraform Format Validate Plan
+
+    runs-on: ubuntu-latest
 
     steps:
 
@@ -75,18 +86,25 @@ jobs:
 
       # -----------------------------------------------------
       # Terraform Format
+      #
+      # Run from Modular root so Dev/Prod/QA/Module
+      # Terraform files are checked recursively.
       # -----------------------------------------------------
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
 
 
       # -----------------------------------------------------
       # Terraform Init
+      #
+      # Dev is the ROOT MODULE.
       # -----------------------------------------------------
 
       - name: Terraform Init
         run: terraform init
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
       # -----------------------------------------------------
@@ -95,6 +113,7 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
       # -----------------------------------------------------
@@ -103,6 +122,7 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
   # =========================================================
@@ -110,23 +130,28 @@ jobs:
   # =========================================================
 
   terraform-apply:
+
     name: Terraform Apply
+
     runs-on: ubuntu-latest
 
-    # Apply job waits for plan job
+    # Apply only after plan job succeeds
     needs: terraform-plan
 
-    # Apply ONLY on main branch
+    # Apply only when code is pushed to main
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-    # Production approval
+
+    # -------------------------------------------------------
+    # GitHub Environment
+    #
+    # If "production" environment has required reviewers,
+    # GitHub will wait for approval before this job starts.
+    # -------------------------------------------------------
+
     environment:
       name: production
 
-    # Terraform code location
-    defaults:
-      run:
-        working-directory: Week-2/Terraform_Recap/day_03/Modular
 
     steps:
 
@@ -166,6 +191,7 @@ jobs:
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
 
 
       # -----------------------------------------------------
@@ -174,6 +200,7 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
       # -----------------------------------------------------
@@ -182,6 +209,7 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
       # -----------------------------------------------------
@@ -190,6 +218,7 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
 
 
       # -----------------------------------------------------
@@ -198,3 +227,4 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/Dev
