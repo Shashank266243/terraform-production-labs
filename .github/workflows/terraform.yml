@@ -23,6 +23,7 @@ env:
   ARM_TENANT_ID: 1abac9aa-2d3d-43ce-a02b-a0088d317630
   ARM_SUBSCRIPTION_ID: c0fefeb2-eca9-4c42-a650-6e08b544f0a8
 
+
 jobs:
 
   # =========================================================
@@ -32,21 +33,22 @@ jobs:
   terraform-plan:
 
     name: Terraform Format Validate Plan
+
     runs-on: ubuntu-latest
 
     steps:
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Checkout repository
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Setup Terraform
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -54,9 +56,9 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Azure Login using OIDC
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Azure Login
         uses: azure/login@v2
@@ -66,44 +68,45 @@ jobs:
           subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
 
-      # -----------------------------------------------------
-      # Terraform Format
+      # -------------------------------------------------------
+      # Terraform Format Check
       #
-      # Run from repository root so all Terraform files
-      # under ENV and Module are checked recursively.
-      # -----------------------------------------------------
+      # Modular is the Terraform project directory.
+      # This checks all .tf files recursively.
+      # -------------------------------------------------------
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Init
       #
-      # ENV/Dev is the root Terraform module.
-      # -----------------------------------------------------
+      # Dev is the Terraform root module.
+      # -------------------------------------------------------
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Validate
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Plan
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
   # =========================================================
@@ -113,28 +116,33 @@ jobs:
   terraform-apply:
 
     name: Terraform Apply
+
     runs-on: ubuntu-latest
 
+    # Apply only after plan succeeds
     needs: terraform-plan
 
+    # Apply only on push to main
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
+    # GitHub Environment
+    # Required reviewers can be configured here.
     environment:
       name: production
 
     steps:
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Checkout repository
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Setup Terraform
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -142,9 +150,9 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Azure Login using OIDC
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Azure Login
         uses: azure/login@v2
@@ -154,45 +162,46 @@ jobs:
           subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
 
-      # -----------------------------------------------------
-      # Terraform Format
-      # -----------------------------------------------------
+      # -------------------------------------------------------
+      # Terraform Format Check
+      # -------------------------------------------------------
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
+        working-directory: Week-2/Terraform_Recap/day_03/Modular
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Init
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Validate
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Plan
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
 
 
-      # -----------------------------------------------------
+      # -------------------------------------------------------
       # Terraform Apply
-      # -----------------------------------------------------
+      # -------------------------------------------------------
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: ENV/Dev
+        working-directory: Week-2/Terraform_Recap/day_03/Modular/ENV/Dev
