@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "st-vnet" {
- 
+
   for_each            = var.vnets
   name                = each.value.name
   location            = each.value.location
