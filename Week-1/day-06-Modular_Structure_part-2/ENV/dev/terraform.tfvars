@@ -2,8 +2,8 @@ rgs = {
   rg1 = {
     name     = "shashank-rg-3"
     location = "centralindia"
- 
-}
+
+  }
 }
 stgs = {
   stgs1 = {

@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "st-nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "st-linux-vm" {
-    depends_on = [ azurerm_resource_group.st-rg,azurerm_virtual_network.st-vnet,azurerm_subnet.st-subnet,azurerm_public_ip.st-pip,azurerm_network_interface.st-nic ]
+  depends_on          = [azurerm_resource_group.st-rg, azurerm_virtual_network.st-vnet, azurerm_subnet.st-subnet, azurerm_public_ip.st-pip, azurerm_network_interface.st-nic]
   name                = "st-linux-vm"
   resource_group_name = azurerm_resource_group.st-rg.name
   location            = azurerm_resource_group.st-rg.location

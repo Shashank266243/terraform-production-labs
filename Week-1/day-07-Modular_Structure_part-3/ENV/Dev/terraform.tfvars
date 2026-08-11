@@ -1,5 +1,5 @@
 
-  name = "St-RG001"
+name                    = "St-RG001"
 location                = "centralindia"
 virtual_network_name    = "st-vnet001"
 vnet_address_space      = ["10.0.0.0/24"]
