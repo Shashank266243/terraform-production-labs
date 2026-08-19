@@ -11,8 +11,12 @@ vnets = {
     address             = ["10.0.0.0/24"]
     resource_group_name = "st-rg11"
     location            = "centralindia"
-
-
+  }
+  vnet2 = {
+    name                = "st-vnet21"
+    address             = ["20.0.0.0/24"]
+    resource_group_name = "st-rg11"
+    location            = "centralindia"
   }
 }
 
@@ -22,6 +26,13 @@ subnets = {
     address_prefixes     = ["10.0.0.0/28"]
     resource_group_name  = "st-rg11"
     virtual_network_name = "st-vnet11"
+
+  }
+  subnet2 = {
+    name                 = "st-subnet21"
+    address_prefixes     = ["20.0.0.0/28"]
+    resource_group_name  = "st-rg11"
+    virtual_network_name = "st-vnet21"
 
   }
 }
