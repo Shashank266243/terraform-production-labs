@@ -6,7 +6,7 @@ resource "azurerm_linux_virtual_machine" "st-linux-vm" {
   name                = each.value.name
   resource_group_name = each.value.resource_group_name
   location            = each.value.location
-  size                = "Standard_B2s"
+  size                = "Standard_B2as_v2"
   admin_username      = each.value.admin_username
   admin_password      = each.value.admin_password
 
